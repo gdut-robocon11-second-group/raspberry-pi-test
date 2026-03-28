@@ -1,7 +1,7 @@
 #include "transfer_protocol.hpp"
 #include "verification_algorithm.hpp"
 
-#include <print>
+#include <fmt/printf.h>
 
 #include <asio.hpp>
 
@@ -10,16 +10,16 @@ asio::awaitable<void> open_serial_port(asio::serial_port serial_port) {
   (void)executor;
 
   if (serial_port.is_open()) {
-    std::print("Serial port opened successfully.\n");
+    fmt::print("Serial port opened successfully.\n");
   } else {
-     std::print("Failed to open serial port.\n");
+     fmt::print("Failed to open serial port.\n");
      co_return;
   }
 
   gdut::packet_manager<gdut::crc16_algorithm> packet_manager;
 
   packet_manager.set_receive_function([](gdut::packet_manager<gdut::crc16_algorithm>::packet_t packet) {
-    std::print("Received packet with payload size: {}\n", packet.size());
+    fmt::print("Received packet with payload size: {}\n", packet.size());
   });
 
   while (true) {
@@ -44,7 +44,7 @@ int main() {
     asio::co_spawn(io_context, open_serial_port(std::move(serial_port)), asio::detached);
     io_context.run();
   } catch (const std::exception& e) {
-    std::print("Error: {}\n", e.what());
+    fmt::print("Error: {}\n", e.what());
   }
   return 0;
 }
