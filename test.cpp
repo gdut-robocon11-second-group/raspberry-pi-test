@@ -35,7 +35,7 @@ asio::awaitable<void> open_serial_port(asio::serial_port serial_port) {
 int main() {
   try {
     asio::io_context io_context;
-    asio::serial_port serial_port(io_context, std::format("COM{}", 4));
+    asio::serial_port serial_port{io_context, "/dev/ttyS0"};
     serial_port.set_option(asio::serial_port_base::baud_rate(115200));
     serial_port.set_option(asio::serial_port_base::character_size(8));
     serial_port.set_option(asio::serial_port_base::parity(asio::serial_port_base::parity::none));
@@ -46,4 +46,5 @@ int main() {
   } catch (const std::exception& e) {
     std::print("Error: {}\n", e.what());
   }
+  return 0;
 }
