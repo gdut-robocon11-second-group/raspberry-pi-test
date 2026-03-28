@@ -11,7 +11,6 @@
 #include <memory_resource>
 #include <type_traits>
 #include <vector>
-#include <iterator>
 
 #include "verification_algorithm.hpp"
 
@@ -44,7 +43,7 @@ public:
   data_packet(std::pmr::memory_resource *mr = default_memory_resource())
       : m_data(mr) {}
 
-  template <std::input_iterator It>
+  template <typename It>
   data_packet(uint16_t code, It begin, It end, build_packet_t,
               std::pmr::memory_resource *mr = default_memory_resource())
       : m_data(mr) {
@@ -246,8 +245,9 @@ public:
     }
   }
 
-  template <std::input_iterator It> void receive(It begin, It end) {
-    m_receive_buffer.append_range(receive_range<It>{begin, end});
+  template <typename It> void receive(It begin, It end) {
+    m_receive_buffer.resize(m_receive_buffer.size() + std::distance(begin, end));
+    std::copy(begin, end, m_receive_buffer.end() - std::distance(begin, end));
     while (true) {
       std::pmr::vector<std::uint8_t>::iterator packet_start;
       while (true) {
@@ -297,14 +297,6 @@ public:
                                  size); // Remove processed packet from buffer
     }
   }
-
-protected:
-  template <std::input_iterator It> struct receive_range {
-    It m_begin;
-    It m_end;
-    It begin() { return m_begin; }
-    It end() { return m_end; }
-  };
 
 private:
   std::function<void(const std::uint8_t *, const std::uint8_t *)>

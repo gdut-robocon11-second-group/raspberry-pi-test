@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.24)
 
 project(raspberry-pi)
 
-set(CMAKE_CXX_STANDARD 23)
+set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 add_subdirectory(fmt)
@@ -16,4 +16,9 @@ target_include_directories(raspberry-pi PRIVATE
 target_link_libraries(raspberry-pi PRIVATE
     asio
     fmt)
-target_compile_definitions(raspberry-pi PRIVATE _WIN32_WINNT=0x0A00)
+if (WIN32)
+    target_compile_definitions(raspberry-pi PRIVATE _WIN32_WINNT=0x0A00)
+    target_link_libraries(raspberry-pi PRIVATE ws2_32)
+elseif (UNIX)
+    target_link_libraries(raspberry-pi PRIVATE pthread)
+endif()

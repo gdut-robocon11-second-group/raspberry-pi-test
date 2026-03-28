@@ -23,12 +23,16 @@ asio::awaitable<void> open_serial_port(asio::serial_port serial_port) {
   });
 
   while (true) {
-    std::array<std::uint8_t, 1024> buffer;
-    std::size_t bytes_transferred = co_await asio::async_read(
-      serial_port,
-      asio::buffer(buffer),
-      asio::use_awaitable);
-    packet_manager.receive(buffer.begin(), buffer.begin() + bytes_transferred);
+    // std::array<std::uint8_t, 1024> buffer;
+    // std::size_t bytes_transferred = co_await asio::async_read(
+    //   serial_port,
+    //   asio::buffer(buffer),
+    //   asio::use_awaitable);
+    // packet_manager.receive(buffer.begin(), buffer.begin() + bytes_transferred);
+    co_await asio::async_write(serial_port, asio::buffer("Hello, world!\n", 14), asio::use_awaitable);
+    asio::steady_timer timer(co_await asio::this_coro::executor);
+    timer.expires_after(std::chrono::seconds(1));
+    co_await timer.async_wait(asio::use_awaitable);
   }
 }
 
